@@ -14,6 +14,7 @@ import MoneyTransferPage from "./pages/MoneyTransferPage";
 import MurdererPage from "./pages/MurdererPage";
 import LayeredSecretPage from "./pages/LayeredSecretPage";
 import CluePage from "./pages/CluePage.jsx";
+import CaseFilePage from "./pages/CaseFilePage.jsx";
 import QRPage from "./pages/QRPage";
 import PokerPage from "./pages/PokerPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -102,6 +103,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <CluePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cases"
+                element={
+                  <ProtectedRoute>
+                    <CaseFilePage />
                   </ProtectedRoute>
                 }
               />

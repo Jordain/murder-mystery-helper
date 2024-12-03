@@ -54,6 +54,7 @@ const NavBar = () => {
     { to: "/transfer", label: "Transfer" },
     { to: "/murderer", label: "Vote" },
     { to: "/secrets", label: "Secrets" },
+    { to: "/cases", label: "Case Files" },
     { to: "/clues", label: "Clues" },
     { to: "/qr", label: "QR" },
     { to: "/poker", label: "Poker" },

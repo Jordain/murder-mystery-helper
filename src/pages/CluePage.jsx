@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, getDocs } from "firebase/firestore";
 import { db } from "../App";
 import { useAuth } from "../contexts/AuthContext";
 
 const CluePage = () => {
   const [clues, setClues] = useState([]);
+  const [allClues, setAllClues] = useState({});
   const [currentRound, setCurrentRound] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -30,46 +31,44 @@ const CluePage = () => {
         const cluesQuery = query(collection(db, "clue"));
         const cluesSnapshot = await getDocs(cluesQuery);
 
-        // Process clues with asynchronous operations
-        const fetchedClues = [];
+        const fetchedClues = {};
 
         for (const clueDoc of cluesSnapshot.docs) {
           const clueData = clueDoc.data();
+          const clueRound = clueData.round || 0;
 
-          // Handle traditional character-based clues
+          if (!fetchedClues[clueRound]) {
+            fetchedClues[clueRound] = [];
+          }
+
+          // Traditional character-based clues
           if (clueData.character_id === characterId) {
-            if ([0, 1, 3].includes(clueData.round) && clueData.round <= round) {
-              fetchedClues.push({ id: clueDoc.id, ...clueData });
-            } 
-            // Round 2 clues with word matching
-            else if (clueData.round === 2) {
+            if ([0, 1, 3].includes(clueRound) && clueRound <= round) {
+              fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
+            } else if (clueRound === 2) {
               const characterDoc = await getDoc(doc(db, "character", characterId));
               const characterData = characterDoc.data();
               const words = characterData.scores["2"]?.details?.word || [];
               if (words.some((w) => w.word === clueData.word_id)) {
-                fetchedClues.push({ id: clueDoc.id, ...clueData });
+                fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
               }
             }
           }
-          
-          // Handle game_id 3 clues with solved status - only for round 2 or later
-          if (clueData.game_id === 3 && round >= 2) {
-            // Check if solved is defined and is an array before processing
-            if (Array.isArray(clueData.solved)) {
-              const isSolved = clueData.solved.some(
-                solved => {
-                  return solved.character_id === characterId && solved.locked === false;
-                }
-              );
-              
-              if (isSolved) {
-                fetchedClues.push({ id: clueDoc.id, ...clueData });
-              }
+
+          // Game_id 3 clues for round 2 or later
+          if (clueData.game_id === 3 && round >= 2 && Array.isArray(clueData.solved)) {
+            const isSolved = clueData.solved.some(
+              (solved) =>
+                solved.character_id === characterId && solved.locked === false
+            );
+            if (isSolved) {
+              fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
             }
           }
         }
 
-        setClues(fetchedClues);
+        setAllClues(fetchedClues);
+        setClues(fetchedClues[currentRound] || []);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching clues:", error);
@@ -80,35 +79,93 @@ const CluePage = () => {
     fetchCluesAndRound();
   }, [user]);
 
-  // Rest of the component remains the same as in the previous version
+  const handleRoundClick = (round) => {
+    setClues(allClues[round] || []);
+    setCurrentRound(round);
+  };
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Clues (Round {currentRound})
-      </h1>
-      <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
-        {clues.length > 0 ? (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">Clues</h1>
+
+      {/* Round Buttons */}
+      <div className="flex flex-wrap justify-center gap-2 mb-6">
+        {Object.keys(allClues).map((round) => (
+          <button
+            key={round}
+            onClick={() => handleRoundClick(parseInt(round))}
+            className={`px-4 py-2 rounded-lg shadow ${
+              currentRound === parseInt(round)
+                ? "bg-blue-600 text-white"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            } focus:outline-none`}
+          >
+            Round {round}
+          </button>
+        ))}
+      </div>
+
+      {/* Clues Display */}
+      <div className="space-y-6">
+        {loading ? (
+          <div className="text-center text-gray-600">Loading...</div>
+        ) : clues.length > 0 ? (
           clues.map((clue, index) => (
-            <div
-              key={clue.id}
-              className="border rounded-lg p-4 bg-gray-50 shadow-sm"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                Clue {index + 1}
-              </h2>
-              <ul className="list-disc list-inside space-y-2">
-                {clue.clue && (Array.isArray(clue.clue) ? 
-                  clue.clue.map((clueText, i) => (
-                    <li key={i} className="text-gray-700">
-                      {clueText}
-                    </li>
-                  )) : (
-                    <li className="text-gray-700">
-                      {clue.clue}
-                    </li>
-                  )
-                )}
-              </ul>
+            <div key={clue.id} className="space-y-4">
+              {currentRound === 1 && (
+                <>
+                  {/* SAY TO OTHERS */}
+                  {clue.clue && (
+                    <div className="bg-green-100 border border-green-300 rounded-lg p-4 shadow-md">
+                      <h2 className="text-lg font-semibold text-green-800 mb-2">
+                        SAY THE FOLLOWING TO OTHERS:
+                      </h2>
+                      <ul className="list-disc list-inside space-y-2">
+                        {clue.clue.map((text, i) => (
+                          <li key={i} className="text-gray-700">
+                            {text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* CONCEALED CLUES */}
+                  {clue.concealed_clue && (
+                    <div className="bg-red-100 border border-red-300 rounded-lg p-4 shadow-md">
+                      <h2 className="text-lg font-semibold text-red-800 mb-2">
+                        THINGS YOU MAY CONCEAL FOR NOW:
+                      </h2>
+                      <ul className="list-disc list-inside space-y-2">
+                        {clue.concealed_clue.map((text, i) => (
+                          <li key={i} className="text-gray-700">
+                            {text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Numbered Clues for Round 0 and Round 2 */}
+              {currentRound !== 1 && (
+                <div className="border rounded-lg p-4 bg-gray-50 shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                    Clue {index + 1}
+                  </h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    {clue.clue && (Array.isArray(clue.clue) ? 
+                      clue.clue.map((clueText, i) => (
+                        <li key={i} className="text-gray-700">
+                          {clueText}
+                        </li>
+                      )) : (
+                        <li className="text-gray-700">{clue.clue}</li>
+                      ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ))
         ) : (
