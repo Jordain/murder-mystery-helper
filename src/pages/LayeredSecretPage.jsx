@@ -16,7 +16,7 @@ const LayeredSecretPage = () => {
     { value: "", submitted: false, correct: false },
   ]);
   const [rumors, setRumors] = useState(
-    Array(16).fill().map(() => ({ value: "", submitted: false, correct: false }))
+    Array(24).fill().map(() => ({ value: "", submitted: false, correct: false }))
   );
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

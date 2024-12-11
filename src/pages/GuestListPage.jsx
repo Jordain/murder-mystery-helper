@@ -8,16 +8,18 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import { db } from "../App";
-import { useAuth } from "../contexts/AuthContext"; // Ensure you have this context
-import { v4 as uuidv4 } from "uuid"; // Make sure to install uuid package
+import { useAuth } from "../contexts/AuthContext";
+import { v4 as uuidv4 } from "uuid";
 
 const GuestListPage = () => {
   const [characters, setCharacters] = useState([]);
+  const [filteredCharacters, setFilteredCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedBios, setExpandedBios] = useState({});
   const [currentNote, setCurrentNote] = useState({});
   const [suspectStatus, setSuspectStatus] = useState({});
   const [notesList, setNotesList] = useState({});
+  const [filterMode, setFilterMode] = useState('all'); // 'all' or 'suspects'
   const { user } = useAuth();
 
   useEffect(() => {
@@ -34,6 +36,7 @@ const GuestListPage = () => {
           }));
 
         setCharacters(charactersList);
+        setFilteredCharacters(charactersList);
 
         // Initialize states
         const initialCurrentNote = {};
@@ -64,6 +67,18 @@ const GuestListPage = () => {
 
     fetchCharacters();
   }, [user]);
+
+  // Update filtered characters when filter mode changes
+  useEffect(() => {
+    if (filterMode === 'suspects') {
+      const suspectCharacters = characters.filter(character => 
+        suspectStatus[character.id] === true
+      );
+      setFilteredCharacters(suspectCharacters);
+    } else {
+      setFilteredCharacters(characters);
+    }
+  }, [filterMode, characters, suspectStatus]);
 
   const toggleBio = (characterId) => {
     setExpandedBios((prev) => ({
@@ -155,8 +170,33 @@ const GuestListPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Guest List</h1>
+      
+      {/* Filter Buttons */}
+      <div className="flex justify-center mb-6 space-x-4">
+        <button
+          onClick={() => setFilterMode('all')}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            filterMode === 'all' 
+              ? 'bg-blue-500 text-white' 
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          }`}
+        >
+          All Characters
+        </button>
+        <button
+          onClick={() => setFilterMode('suspects')}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            filterMode === 'suspects' 
+              ? 'bg-blue-500 text-white' 
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          }`}
+        >
+          Suspects Only
+        </button>
+      </div>
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {characters.map((character) => (
+        {filteredCharacters.map((character) => (
           <div
             key={character.id}
             className="bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow"

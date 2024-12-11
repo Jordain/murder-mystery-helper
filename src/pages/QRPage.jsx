@@ -16,7 +16,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const QRPage = () => {
   const [inputs, setInputs] = useState(
-    Array(16).fill({ value: "", submitted: false, correct: false })
+    Array(24).fill({ value: "", submitted: false, correct: false })
   );
   const [secretSentence, setSecretSentence] = useState("");
   const [error, setError] = useState("");
@@ -230,8 +230,8 @@ const QRPage = () => {
     setError("");
     setSuccess("");
 
-    if (secretSentence.trim().split(/\s+/).length !== 16) {
-      setError("Please enter exactly 16 words.");
+    if (secretSentence.trim().split(/\s+/).length !== 24) {
+      setError("Please enter exactly 24 words.");
       return;
     }
 
@@ -335,12 +335,12 @@ const QRPage = () => {
             className={`w-full p-2 border rounded h-32 ${
               solvedSentenceBool ? "bg-green-100 cursor-not-allowed" : ""
             }`}
-            placeholder="Enter exactly 16 words..."
+            placeholder="Enter exactly 24 words..."
             required
             disabled={solvedSentenceBool}
           />
           <p className="text-sm text-gray-600 mt-1">
-            Word count: {secretSentence.trim().split(/\s+/).length || 0}/16
+            Word count: {secretSentence.trim().split(/\s+/).length || 0}/24
           </p>
         </div>
 
