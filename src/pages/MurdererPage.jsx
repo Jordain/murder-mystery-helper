@@ -23,6 +23,14 @@ const MurdererPage = () => {
     { id: "murderer", name: "Who Is The Murderer?" },
     { id: "costume", name: "Best Costume" },
     { id: "actor", name: "Best Actor" },
+    { id: "mini-game", name: "Favorite Mini Game" }, // New category
+  ];
+
+  const miniGameOptions = [
+    { id: "qr-code", name: "QR Code" },
+    { id: "secret-string", name: "Secret String" },
+    { id: "bingo-balls", name: "Bingo Balls" },
+    { id: "main-mystery", name: "I prefer focusing on the Murder Mystery" }
   ];
 
   useEffect(() => {
@@ -131,12 +139,19 @@ const MurdererPage = () => {
               disabled={hasVoted}
               required
             >
-              <option value="">Select a character</option>
-              {characters.map((char) => (
-                <option key={char.id} value={char.id}>
-                  {char.first_name} {char.last_name}
-                </option>
-              ))}
+              <option value="">Select a choice</option>
+              {selectedCategory === "mini-game" 
+                ? miniGameOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))
+                : characters.map((char) => (
+                    <option key={char.id} value={char.id}>
+                      {char.first_name} {char.last_name}
+                    </option>
+                  ))
+              }
             </select>
           </div>
 
