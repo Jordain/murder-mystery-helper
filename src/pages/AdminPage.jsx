@@ -61,8 +61,19 @@ const AdminPanel = () => {
             ])
         );
 
-        // Process Cash Rankings
+        // Process Cash Rankings - add filtering here
         const cashRankings = charactersSnapshot.docs
+          .filter(
+            (doc) =>
+              ![
+                "t1V3x7zfJIyXZjakIAZV",
+                "d2wv9hw2m3wHsih4XmOK17",
+                "d2wv9hw2m3wHsih4XmOK19",
+                "d2wv9hw2m3wHsih4XmOK20",
+                "d2wv9hw2m3wHsih4XmOK21",
+                "d2wv9hw2m3wHsih4XmOK23",
+              ].includes(doc.id)
+          )
           .map((doc) => {
             const characterData = doc.data();
             return {
@@ -108,8 +119,18 @@ const AdminPanel = () => {
             ])
         );
 
+        // Excluded character IDs
+        const excludedCharacterIds = [
+          "t1V3x7zfJIyXZjakIAZV",
+          "d2wv9hw2m3wHsih4XmOK17",
+          "d2wv9hw2m3wHsih4XmOK19",
+          "d2wv9hw2m3wHsih4XmOK20",
+          "d2wv9hw2m3wHsih4XmOK21",
+          "d2wv9hw2m3wHsih4XmOK23",
+        ];
         // Process Secret String (Round 2) Scores
         const secretStringResults = charactersSnapshot.docs
+          .filter((doc) => !excludedCharacterIds.includes(doc.id))
           .map((doc) => {
             const characterData = doc.data();
             const scoreData = characterData.scores?.[2];
@@ -127,6 +148,7 @@ const AdminPanel = () => {
 
         // Process QR Code (Round 3) Scores
         const qrCodeResults = charactersSnapshot.docs
+          .filter((doc) => !excludedCharacterIds.includes(doc.id))
           .map((doc) => {
             const characterData = doc.data();
             const scoreData = characterData.scores?.[3];
@@ -164,13 +186,29 @@ const AdminPanel = () => {
     ) => {
       const processedVotes = [];
       const voteCountMap = new Map();
-      console.log(category);
+      const excludedCharacterIds = [
+        "t1V3x7zfJIyXZjakIAZV",
+        "d2wv9hw2m3wHsih4XmOK17",
+        "d2wv9hw2m3wHsih4XmOK19",
+        "d2wv9hw2m3wHsih4XmOK20",
+        "d2wv9hw2m3wHsih4XmOK21",
+        "d2wv9hw2m3wHsih4XmOK23",
+      ];
 
       votesSnapshot.docs.forEach((voteDoc) => {
         const voteData = voteDoc.data();
         if (voteData.category === category) {
           const voter = usersMap.get(voteData.char_id);
           const character = charactersMap.get(voter.character_id);
+
+          // Skip if voter or voted character is in excluded list
+          if (
+            !character ||
+            excludedCharacterIds.includes(voter.character_id) ||
+            excludedCharacterIds.includes(voteData.voted_for)
+          ) {
+            return;
+          }
 
           // Special handling for mini-game category
           if (category === "mini-game") {

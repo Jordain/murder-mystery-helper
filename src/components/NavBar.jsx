@@ -51,15 +51,15 @@ const NavBar = () => {
     ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
     { to: "/guest", label: "Guest List" },
     { to: "/character", label: "Character" },
-    { to: "/transfer", label: "Transfer" },
-    { to: "/murderer", label: "Vote" },
-    { to: "/secrets", label: "Secrets" },
     { to: "/cases", label: "Case Files" },
-    { to: "/hints", label: "Hints" },
     { to: "/clues", label: "Clues" },
+    { to: "/murderer", label: "Vote" },
+    { to: "/hints", label: "Hints" },
+    { to: "/secrets", label: "Secrets" },
     { to: "/qr", label: "QR" },
+    { to: "/transfer", label: "Transfer" },
     { to: "/poker", label: "Poker" },
-    { to: "https://www.hemloxx.com/", label: "Hemloxx" },
+    //{ to: "https://www.hemloxx.com/", label: "Hemloxx" },
   ];
 
   return (

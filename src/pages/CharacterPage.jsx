@@ -83,11 +83,15 @@ const CharacterPage = () => {
         </div>
 
         <div>
-          <h3 className="font-semibold">Personal Objectives</h3>
+          <h3 className="font-extrabold, text-xl mb-2">Secrets Objective:</h3>
           {objectives.length > 0 ? (
             <div>
               {objectives.map((objective) => (
-                <div key={objective.id}>{objective.objective}</div>
+                <div
+                  key={objective.id}
+                  style={{ marginBottom: "10px" }} // Add space between each record
+                  dangerouslySetInnerHTML={{ __html: objective.objective }}
+                />
               ))}
             </div>
           ) : (

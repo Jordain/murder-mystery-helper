@@ -25,25 +25,36 @@ const MoneyTransferPage = () => {
         // First get user data to get cash amount
         const userDoc = await getDoc(doc(db, "user", user.uid));
         const userData = userDoc.data();
-
+  
         // Fetch current user's cash
         const characterSnapshot = await getDoc(
           doc(db, "character", userData.character_id)
         );
         setCurrentCash(Number(characterSnapshot.data().cash));
-
-        // Fetch all characters
+  
+        // Fetch all characters and filter out specific IDs
         const charactersSnapshot = await getDocs(collection(db, "character"));
-        const charactersData = charactersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const charactersData = charactersSnapshot.docs
+          .filter((doc) => 
+            ![
+              "t1V3x7zfJIyXZjakIAZV", 
+              "d2wv9hw2m3wHsih4XmOK17", 
+              "d2wv9hw2m3wHsih4XmOK19", 
+              "d2wv9hw2m3wHsih4XmOK20", 
+              "d2wv9hw2m3wHsih4XmOK21", 
+              "d2wv9hw2m3wHsih4XmOK23"
+            ].includes(doc.id)
+          )
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
         setCharacters(charactersData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchData();
   }, [user]);
 
