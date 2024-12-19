@@ -1,3 +1,8 @@
+import React, { useState, useEffect } from "react";
+import { doc, getDoc, collection, query, getDocs } from "firebase/firestore";
+import { db } from "../App";
+import { useAuth } from "../contexts/AuthContext";
+
 const CluePage = () => {
   const [clues, setClues] = useState([]);
   const [allClues, setAllClues] = useState({});
