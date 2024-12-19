@@ -28,6 +28,16 @@ const QRPage = () => {
   const [success, setSuccess] = useState("");
   const { user } = useAuth();
 
+  // Load secret sentence from localStorage when component mounts
+  useEffect(() => {
+    if (characterId) {
+      const savedSentence = localStorage.getItem(`secretSentence_${characterId}`);
+      if (savedSentence && !solvedSentenceBool) {
+        setSecretSentence(savedSentence);
+      }
+    }
+  }, [characterId, solvedSentenceBool]);
+
   useEffect(() => {
     const fetchCharacterId = async () => {
       try {
@@ -39,9 +49,7 @@ const QRPage = () => {
         const userData = userDoc.data();
         const characterId = userData.character_id?.trim();
         if (!characterId)
-          throw new Error(
-            "Character ID is missing or invalid in user document"
-          );
+          throw new Error("Character ID is missing or invalid in user document");
 
         setCharacterId(characterId);
       } catch (error) {
@@ -98,6 +106,8 @@ const QRPage = () => {
 
         if (sentenceSolved.length > 0) {
           setSecretSentence(sentenceSolved[0]);
+          // Clear localStorage if sentence is already solved
+          localStorage.removeItem(`secretSentence_${characterId}`);
         }
 
         setSolvedSentence(sentenceSolved);
@@ -128,6 +138,13 @@ const QRPage = () => {
     setInputs(newInputs);
   };
 
+  const handleSecretSentenceChange = (value) => {
+    setSecretSentence(value);
+    if (characterId && !solvedSentenceBool) {
+      localStorage.setItem(`secretSentence_${characterId}`, value);
+    }
+  };
+
   const handleQRSubmit = async (index) => {
     setError("");
     setSuccess("");
@@ -135,14 +152,12 @@ const QRPage = () => {
     try {
       const valueToCheck = inputs[index].value.trim().toLowerCase();
 
-      // Check against ALL solved words, not just solvedWord
       const allSolvedWords = solvedWord || [];
       if (allSolvedWords.includes(valueToCheck)) {
         setError(`The word "${valueToCheck}" has already been solved.`);
         return;
       }
 
-      // Find the matching answer key
       const matchingKey = answerKeys.find(
         (key) =>
           key.answer.toLowerCase().trim() === valueToCheck &&
@@ -151,7 +166,6 @@ const QRPage = () => {
       );
 
       if (matchingKey) {
-        // Update inputs state
         const newInputs = [...inputs];
         newInputs[index] = {
           value: valueToCheck,
@@ -160,7 +174,6 @@ const QRPage = () => {
         };
         setInputs(newInputs);
 
-        // Update character score
         const characterRef = doc(db, "character", characterId);
         const characterDoc = await getDoc(characterRef);
         const characterData = characterDoc.data();
@@ -181,7 +194,6 @@ const QRPage = () => {
           { merge: true }
         );
 
-        // Update the matching clue
         const clueQuery = query(
           collection(db, "clue"),
           where("word_id", "==", valueToCheck),
@@ -196,23 +208,21 @@ const QRPage = () => {
           const updatedCharIds = clueData.char_id ? [...clueData.char_id] : [];
 
           if (!updatedCharIds.includes(characterId)) {
-            // Make sure the 'solved' array exists, if not initialize it
             const solvedEntry = {
               character_id: characterId,
-              locked: false, // Unlock the clue for this character
+              locked: false,
               createdAt: Timestamp.now(),
             };
 
-            // Use arrayUnion to add this entry to the 'solved' array
             await updateDoc(clueRef, {
-              solved: arrayUnion(solvedEntry), // This ensures Firestore handles the array correctly
+              solved: arrayUnion(solvedEntry),
             });
           }
 
           setSuccess(
             `Correct! You earned ${matchingKey.point_worth} point(s). You unlocked an additional clue for round 2!`
           );
-          setSolvedWord([...allSolvedWords, valueToCheck]); // Update solvedWord
+          setSolvedWord([...allSolvedWords, valueToCheck]);
         } else {
           setError("Clue not found. Please try again.");
         }
@@ -251,7 +261,6 @@ const QRPage = () => {
       );
 
       if (matchingKey) {
-        // Update character document
         const characterRef = doc(db, "character", characterId);
         const characterDoc = await getDoc(characterRef);
         const characterData = characterDoc.data();
@@ -260,7 +269,11 @@ const QRPage = () => {
 
         gameScores.total_score += Number(matchingKey.point_worth);
         gameScores.details.sentence = [
-          { secret: valueToCheck, point_worth: matchingKey.point_worth, createdAt: Timestamp.now()},
+          { 
+            secret: valueToCheck, 
+            point_worth: matchingKey.point_worth, 
+            createdAt: Timestamp.now()
+          },
         ];
 
         await setDoc(
@@ -269,9 +282,12 @@ const QRPage = () => {
           { merge: true }
         );
 
+        // Clear localStorage after successful submission
+        localStorage.removeItem(`secretSentence_${characterId}`);
+
         setSuccess(`Correct! You earned ${matchingKey.point_worth} point(s).`);
         setSolvedSentenceBool(true);
-        setSolvedSentence([valueToCheck]); // Update solvedSentence
+        setSolvedSentence([valueToCheck]);
       } else {
         setError("Incorrect. Try again.");
       }
@@ -331,7 +347,7 @@ const QRPage = () => {
         <div>
           <textarea
             value={secretSentence}
-            onChange={(e) => setSecretSentence(e.target.value)}
+            onChange={(e) => handleSecretSentenceChange(e.target.value)}
             className={`w-full p-2 border rounded h-32 ${
               solvedSentenceBool ? "bg-green-100 cursor-not-allowed" : ""
             }`}

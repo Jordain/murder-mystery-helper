@@ -19,7 +19,6 @@ const HintPage = () => {
   const [characterId, setCharacterId] = useState(null);
   const { user } = useAuth();
 
-  // Natural sort function to handle numeric ordering
   const naturalSort = (a, b) => {
     const extractNumber = (str) => {
       const match = str.match(/(\d+)$/);
@@ -28,7 +27,6 @@ const HintPage = () => {
     return extractNumber(a) - extractNumber(b);
   };
 
-  // Categorize hints
   const categorizeHints = (hints) => {
     const categories = {
       recommended: [],
@@ -38,7 +36,6 @@ const HintPage = () => {
     };
 
     hints.forEach((hint) => {
-      // Determine category based on hint title/properties
       if (hint.title.toLowerCase().includes("recommended")) {
         categories.recommended.push(hint);
       } else if (hint.title.toLowerCase().includes("qr")) {
@@ -50,7 +47,6 @@ const HintPage = () => {
       }
     });
 
-    // Sort hints within each category
     Object.keys(categories).forEach((category) => {
       categories[category].sort((a, b) => naturalSort(a.title, b.title));
     });
@@ -65,7 +61,6 @@ const HintPage = () => {
     }
 
     try {
-      // Previous fetchHints logic remains the same...
       const userDoc = await getDoc(doc(db, "user", user.uid));
       const userData = userDoc.data();
       const fetchedCharacterId = userData.character_id;
@@ -94,7 +89,6 @@ const HintPage = () => {
         })
         .filter((hint) => hint.round <= round);
 
-      // Categorize and set hints
       const categorizedHints = categorizeHints(filteredHints);
       setHints(categorizedHints);
     } catch (error) {
@@ -104,7 +98,6 @@ const HintPage = () => {
     }
   };
 
-  // Rest of the component remains the same as in the original code...
   useEffect(() => {
     fetchHints();
   }, [user]);
@@ -124,34 +117,20 @@ const HintPage = () => {
       }));
     } catch (error) {
       console.error("Error updating user cash: ", error);
-      alert("Failed to update cash.");
     }
   };
 
   const buyHint = async (hintId, category) => {
-    if (!user || !characterId) {
-      alert("Please log in to buy a hint.");
-      return;
-    }
+    if (!user || !characterId) return;
 
     try {
       const hint = hints[category].find((h) => h.id === hintId);
-      if (!hint) {
-        alert("Hint not found.");
-        return;
-      }
+      if (!hint) return;
 
       const { cost, bought = [] } = hint;
 
-      if (characterData.cash < cost) {
-        alert("Not enough cash to buy this hint.");
-        return;
-      }
-
-      if (bought.some((buyer) => buyer.character_id === characterId)) {
-        alert("You have already bought this hint.");
-        return;
-      }
+      if (characterData.cash < cost) return;
+      if (bought.some((buyer) => buyer.character_id === characterId)) return;
 
       const newBoughtEntry = {
         character_id: characterId,
@@ -165,23 +144,16 @@ const HintPage = () => {
       });
 
       await updateUserCash(cost);
-
-      alert(`Hint "${hint.hint}" purchased successfully!`);
       fetchHints();
     } catch (error) {
       console.error("Error buying hint: ", error);
-      alert("Failed to buy hint.");
     }
   };
 
   const buyRandomHint = async () => {
-    if (!user || !characterId) {
-      alert("Please log in to buy a hint.");
-      return;
-    }
+    if (!user || !characterId) return;
 
     try {
-      // Collect all unbought hints across categories
       const availableHints = Object.values(hints)
         .flat()
         .filter(
@@ -189,20 +161,13 @@ const HintPage = () => {
             !hint.bought?.some((buyer) => buyer.character_id === characterId)
         );
 
-      if (availableHints.length === 0) {
-        alert("No available hints to purchase.");
-        return;
-      }
+      if (availableHints.length === 0) return;
 
       const randomHint =
         availableHints[Math.floor(Math.random() * availableHints.length)];
 
-      if (characterData.cash < randomHint.cost) {
-        alert("Not enough cash to buy a random hint.");
-        return;
-      }
+      if (characterData.cash < randomHint.cost) return;
 
-      // Find the category of the random hint
       const category = Object.keys(hints).find((cat) =>
         hints[cat].some((h) => h.id === randomHint.id)
       );
@@ -210,7 +175,6 @@ const HintPage = () => {
       await buyHint(randomHint.id, category);
     } catch (error) {
       console.error("Error buying random hint: ", error);
-      alert("Failed to buy random hint.");
     }
   };
 
@@ -227,7 +191,6 @@ const HintPage = () => {
         <span className="text-green-600">${characterData?.cash || 0}</span>
       </div>
 
-      {/* Render hints by category */}
       {Object.entries(hints).map(
         ([category, categoryHints]) =>
           categoryHints.length > 0 && (
@@ -291,16 +254,6 @@ const HintPage = () => {
             </div>
           )
       )}
-
-      {/* Random Hint Button */}
-      {/* <div className="text-center mt-6">
-        <button
-          onClick={buyRandomHint}
-          className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
-        >
-          Buy Random Hint
-        </button>
-      </div> */}
     </div>
   );
 };

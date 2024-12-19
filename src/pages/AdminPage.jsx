@@ -67,11 +67,9 @@ const AdminPanel = () => {
             (doc) =>
               ![
                 "t1V3x7zfJIyXZjakIAZV",
-                "d2wv9hw2m3wHsih4XmOK17",
                 "d2wv9hw2m3wHsih4XmOK19",
                 "d2wv9hw2m3wHsih4XmOK20",
                 "d2wv9hw2m3wHsih4XmOK21",
-                "d2wv9hw2m3wHsih4XmOK23",
               ].includes(doc.id)
           )
           .map((doc) => {
@@ -122,11 +120,9 @@ const AdminPanel = () => {
         // Excluded character IDs
         const excludedCharacterIds = [
           "t1V3x7zfJIyXZjakIAZV",
-          "d2wv9hw2m3wHsih4XmOK17",
           "d2wv9hw2m3wHsih4XmOK19",
           "d2wv9hw2m3wHsih4XmOK20",
           "d2wv9hw2m3wHsih4XmOK21",
-          "d2wv9hw2m3wHsih4XmOK23",
         ];
         // Process Secret String (Round 2) Scores
         const secretStringResults = charactersSnapshot.docs
@@ -188,11 +184,9 @@ const AdminPanel = () => {
       const voteCountMap = new Map();
       const excludedCharacterIds = [
         "t1V3x7zfJIyXZjakIAZV",
-        "d2wv9hw2m3wHsih4XmOK17",
         "d2wv9hw2m3wHsih4XmOK19",
         "d2wv9hw2m3wHsih4XmOK20",
         "d2wv9hw2m3wHsih4XmOK21",
-        "d2wv9hw2m3wHsih4XmOK23",
       ];
 
       votesSnapshot.docs.forEach((voteDoc) => {

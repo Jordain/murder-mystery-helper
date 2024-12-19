@@ -23,7 +23,7 @@ const MurdererPage = () => {
     { id: "murderer", name: "Who Is The Murderer?" },
     { id: "costume", name: "Best Costume" },
     { id: "actor", name: "Best Actor" },
-    { id: "mini-game", name: "Favorite Mini Game" }, // New category
+    { id: "mini-game", name: "Favorite Mini Game" },
   ];
 
   const miniGameOptions = [
@@ -33,15 +33,25 @@ const MurdererPage = () => {
     { id: "main-mystery", name: "I prefer focusing on the Murder Mystery" }
   ];
 
+  // Array of character IDs to exclude
+  const excludedCharacters = [
+    "t1V3x7zfJIyXZjakIAZV",
+    "d2wv9hw2m3wHsih4XmOK19",
+    "d2wv9hw2m3wHsih4XmOK20",
+    "d2wv9hw2m3wHsih4XmOK21",
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all characters
+        // Fetch all characters and filter out excluded ones
         const charactersSnapshot = await getDocs(collection(db, "character"));
-        const charactersData = charactersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const charactersData = charactersSnapshot.docs
+          .filter(doc => !excludedCharacters.includes(doc.id))
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
         setCharacters(charactersData);
 
         // Check if user has already voted for the selected category
@@ -76,11 +86,11 @@ const MurdererPage = () => {
     try {
       // Save the vote with a timestamp
       await setDoc(doc(db, "vote", `${user.uid}-${selectedCategory}`), {
-        game_id: 1, // You might want to make this dynamic
+        game_id: 1,
         char_id: user.uid,
         category: selectedCategory,
         voted_for: selectedCharacter,
-        created_at: serverTimestamp(), // Automatically set to current time
+        created_at: serverTimestamp(),
       });
 
       setHasVoted(true);
