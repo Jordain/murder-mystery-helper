@@ -46,7 +46,9 @@ const CluePage = () => {
             if ([0, 1, 3].includes(clueRound) && clueRound <= round) {
               fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
             } else if (clueRound === 2) {
-              const characterDoc = await getDoc(doc(db, "character", characterId));
+              const characterDoc = await getDoc(
+                doc(db, "character", characterId)
+              );
               const characterData = characterDoc.data();
               const words = characterData.scores["2"]?.details?.word || [];
               if (words.some((w) => w.word === clueData.word_id)) {
@@ -56,7 +58,11 @@ const CluePage = () => {
           }
 
           // Game_id 3 clues for round 2 or later
-          if (clueData.game_id === 3 && round >= 2 && Array.isArray(clueData.solved)) {
+          if (
+            clueData.game_id === 3 &&
+            round >= 2 &&
+            Array.isArray(clueData.solved)
+          ) {
             const isSolved = clueData.solved.some(
               (solved) =>
                 solved.character_id === characterId && solved.locked === false
@@ -112,57 +118,40 @@ const CluePage = () => {
         ) : clues.length > 0 ? (
           clues.map((clue, index) => (
             <div key={clue.id} className="space-y-4">
-              {currentRound === 1 && (
-                <>
-                  {/* SAY TO OTHERS */}
-                  {clue.clue && (
-                    <div className="bg-green-100 border border-green-300 rounded-lg p-4 shadow-md">
-                      <h2 className="text-lg font-semibold text-green-800 mb-2">
-                        SAY THE FOLLOWING TO OTHERS:
-                      </h2>
-                      <ul className="list-disc list-inside space-y-2">
-                        {clue.clue.map((text, i) => (
-                          <li key={i} className="text-gray-700">
-                            {text}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* CONCEALED CLUES */}
-                  {clue.concealed_clue && (
-                    <div className="bg-red-100 border border-red-300 rounded-lg p-4 shadow-md">
-                      <h2 className="text-lg font-semibold text-red-800 mb-2">
-                        THINGS YOU MAY CONCEAL FOR NOW:
-                      </h2>
-                      <ul className="list-disc list-inside space-y-2">
-                        {clue.concealed_clue.map((text, i) => (
-                          <li key={i} className="text-gray-700">
-                            {text}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Numbered Clues for Round 0 and Round 2 */}
-              {currentRound !== 1 && (
-                <div className="border rounded-lg p-4 bg-gray-50 shadow-sm">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                    Clue {index + 1}
+              {/* Regular Clues */}
+              {clue.clue && (
+                <div className="bg-green-100 border border-green-300 rounded-lg p-4 shadow-md">
+                  <h2 className="text-lg font-semibold text-green-800 mb-2">
+                    {currentRound === 1
+                      ? "SAY THE FOLLOWING TO OTHERS:"
+                      : `Clue ${index + 1}`}
                   </h2>
                   <ul className="list-disc list-inside space-y-2">
-                    {clue.clue && (Array.isArray(clue.clue) ? 
-                      clue.clue.map((clueText, i) => (
+                    {Array.isArray(clue.clue) ? (
+                      clue.clue.map((text, i) => (
                         <li key={i} className="text-gray-700">
-                          {clueText}
+                          {text}
                         </li>
-                      )) : (
-                        <li className="text-gray-700">{clue.clue}</li>
-                      ))}
+                      ))
+                    ) : (
+                      <li className="text-gray-700">{clue.clue}</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              {/* Concealed Clues - now outside the round check */}
+              {clue.concealed_clue && (
+                <div className="bg-red-100 border border-red-300 rounded-lg p-4 shadow-md">
+                  <h2 className="text-lg font-semibold text-red-800 mb-2">
+                    THINGS YOU MAY CONCEAL FOR NOW:
+                  </h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    {clue.concealed_clue.map((text, i) => (
+                      <li key={i} className="text-gray-700">
+                        {text}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}
