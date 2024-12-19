@@ -46,9 +46,7 @@ const CluePage = () => {
             if ([0, 1, 3].includes(clueRound) && clueRound <= round) {
               fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
             } else if (clueRound === 2) {
-              const characterDoc = await getDoc(
-                doc(db, "character", characterId)
-              );
+              const characterDoc = await getDoc(doc(db, "character", characterId));
               const characterData = characterDoc.data();
               const words = characterData.scores["2"]?.details?.word || [];
               if (words.some((w) => w.word === clueData.word_id)) {
@@ -58,11 +56,7 @@ const CluePage = () => {
           }
 
           // Game_id 3 clues for round 2 or later
-          if (
-            clueData.game_id === 3 &&
-            round >= 2 &&
-            Array.isArray(clueData.solved)
-          ) {
+          if (clueData.game_id === 3 && round >= 2 && Array.isArray(clueData.solved)) {
             const isSolved = clueData.solved.some(
               (solved) =>
                 solved.character_id === characterId && solved.locked === false
@@ -122,20 +116,17 @@ const CluePage = () => {
               {clue.clue && (
                 <div className="bg-green-100 border border-green-300 rounded-lg p-4 shadow-md">
                   <h2 className="text-lg font-semibold text-green-800 mb-2">
-                    {currentRound === 1
-                      ? "SAY THE FOLLOWING TO OTHERS:"
-                      : `Clue ${index + 1}`}
+                    {currentRound === 1 ? "SAY THE FOLLOWING TO OTHERS:" : `Clue ${index + 1}`}
                   </h2>
                   <ul className="list-disc list-inside space-y-2">
-                    {Array.isArray(clue.clue) ? (
+                    {Array.isArray(clue.clue) ? 
                       clue.clue.map((text, i) => (
                         <li key={i} className="text-gray-700">
                           {text}
                         </li>
-                      ))
-                    ) : (
-                      <li className="text-gray-700">{clue.clue}</li>
-                    )}
+                      )) : (
+                        <li className="text-gray-700">{clue.clue}</li>
+                      )}
                   </ul>
                 </div>
               )}
