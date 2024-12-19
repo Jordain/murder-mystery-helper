@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { doc, getDoc, collection, query, getDocs } from "firebase/firestore";
-import { db } from "../App";
-import { useAuth } from "../contexts/AuthContext";
-
 const CluePage = () => {
   const [clues, setClues] = useState([]);
   const [allClues, setAllClues] = useState({});
   const [currentRound, setCurrentRound] = useState(0);
+  const [adminRound, setAdminRound] = useState(0);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -20,7 +16,8 @@ const CluePage = () => {
         const adminSnapshot = await getDocs(adminQuery);
         const adminData = adminSnapshot.docs[0]?.data();
         const round = adminData?.round || 0;
-        setCurrentRound(round);
+        setAdminRound(round);
+        setCurrentRound(round); // Set initial view to admin round
 
         // Fetch user's character
         const userDoc = await getDoc(doc(db, "user", user.uid));
@@ -37,38 +34,41 @@ const CluePage = () => {
           const clueData = clueDoc.data();
           const clueRound = clueData.round || 0;
 
-          if (!fetchedClues[clueRound]) {
-            fetchedClues[clueRound] = [];
-          }
+          // Only process clues up to the admin's current round
+          if (clueRound <= round) {
+            if (!fetchedClues[clueRound]) {
+              fetchedClues[clueRound] = [];
+            }
 
-          // Traditional character-based clues
-          if (clueData.character_id === characterId) {
-            if ([0, 1, 3].includes(clueRound) && clueRound <= round) {
-              fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
-            } else if (clueRound === 2) {
-              const characterDoc = await getDoc(doc(db, "character", characterId));
-              const characterData = characterDoc.data();
-              const words = characterData.scores["2"]?.details?.word || [];
-              if (words.some((w) => w.word === clueData.word_id)) {
+            // Traditional character-based clues
+            if (clueData.character_id === characterId) {
+              if ([0, 1, 3].includes(clueRound)) {
                 fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
+              } else if (clueRound === 2) {
+                const characterDoc = await getDoc(doc(db, "character", characterId));
+                const characterData = characterDoc.data();
+                const words = characterData.scores["2"]?.details?.word || [];
+                if (words.some((w) => w.word === clueData.word_id)) {
+                  fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
+                }
               }
             }
-          }
 
-          // Game_id 3 clues for round 2 or later
-          if (clueData.game_id === 3 && round >= 2 && Array.isArray(clueData.solved)) {
-            const isSolved = clueData.solved.some(
-              (solved) =>
-                solved.character_id === characterId && solved.locked === false
-            );
-            if (isSolved) {
-              fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
+            // Game_id 3 clues for round 2 or later
+            if (clueData.game_id === 3 && round >= 2 && Array.isArray(clueData.solved)) {
+              const isSolved = clueData.solved.some(
+                (solved) =>
+                  solved.character_id === characterId && solved.locked === false
+              );
+              if (isSolved) {
+                fetchedClues[clueRound].push({ id: clueDoc.id, ...clueData });
+              }
             }
           }
         }
 
         setAllClues(fetchedClues);
-        setClues(fetchedClues[currentRound] || []);
+        setClues(fetchedClues[round] || []);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching clues:", error);
@@ -80,29 +80,36 @@ const CluePage = () => {
   }, [user]);
 
   const handleRoundClick = (round) => {
-    setClues(allClues[round] || []);
-    setCurrentRound(round);
+    // Only allow switching to rounds up to the admin round
+    if (round <= adminRound) {
+      setCurrentRound(round);
+      setClues(allClues[round] || []);
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Clues</h1>
 
-      {/* Round Buttons */}
+      {/* Round Buttons - only show rounds up to admin round */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">
-        {Object.keys(allClues).map((round) => (
-          <button
-            key={round}
-            onClick={() => handleRoundClick(parseInt(round))}
-            className={`px-4 py-2 rounded-lg shadow ${
-              currentRound === parseInt(round)
-                ? "bg-blue-600 text-white"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            } focus:outline-none`}
-          >
-            Round {round}
-          </button>
-        ))}
+        {Object.keys(allClues)
+          .map(Number)
+          .filter(round => round <= adminRound)
+          .sort((a, b) => a - b)
+          .map((round) => (
+            <button
+              key={round}
+              onClick={() => handleRoundClick(round)}
+              className={`px-4 py-2 rounded-lg shadow ${
+                currentRound === round
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              } focus:outline-none`}
+            >
+              Round {round}
+            </button>
+          ))}
       </div>
 
       {/* Clues Display */}
@@ -112,7 +119,7 @@ const CluePage = () => {
         ) : clues.length > 0 ? (
           clues.map((clue, index) => (
             <div key={clue.id} className="space-y-4">
-              {currentRound === 1 && (
+              {currentRound === 1 ? (
                 <>
                   {/* SAY TO OTHERS */}
                   {clue.clue && (
@@ -146,23 +153,20 @@ const CluePage = () => {
                     </div>
                   )}
                 </>
-              )}
-
-              {/* Numbered Clues for Round 0 and Round 2 */}
-              {currentRound !== 1 && (
+              ) : (
                 <div className="border rounded-lg p-4 bg-gray-50 shadow-sm">
                   <h2 className="text-xl font-semibold text-gray-800 mb-2">
                     Clue {index + 1}
                   </h2>
                   <ul className="list-disc list-inside space-y-2">
-                    {clue.clue && (Array.isArray(clue.clue) ? 
-                      clue.clue.map((clueText, i) => (
+                    {Array.isArray(clue.clue) ? 
+                      clue.clue.map((text, i) => (
                         <li key={i} className="text-gray-700">
-                          {clueText}
+                          {text}
                         </li>
                       )) : (
                         <li className="text-gray-700">{clue.clue}</li>
-                      ))}
+                      )}
                   </ul>
                 </div>
               )}
