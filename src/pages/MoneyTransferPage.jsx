@@ -37,8 +37,6 @@ const MoneyTransferPage = () => {
         const charactersData = charactersSnapshot.docs
           .filter((doc) => 
             ![
-              "t1V3x7zfJIyXZjakIAZV",
-              "t1V3x7zfJIyXZjakIAZV2",
               "d2wv9hw2m3wHsih4XmOK19", 
               "d2wv9hw2m3wHsih4XmOK20", 
               "d2wv9hw2m3wHsih4XmOK21"
