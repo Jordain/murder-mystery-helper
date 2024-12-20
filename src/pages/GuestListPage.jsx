@@ -29,7 +29,7 @@ const GuestListPage = () => {
         const charactersSnapshot = await getDocs(charactersRef);
 
         const charactersList = charactersSnapshot.docs
-          .filter((doc) => doc.id !== "t1V3x7zfJIyXZjakIAZV" && doc.id !== "d2wv9hw2m3wHsih4XmOK19" && doc.id !== "d2wv9hw2m3wHsih4XmOK20" && doc.id !== "d2wv9hw2m3wHsih4XmOK21")
+          .filter((doc) => doc.id !== "t1V3x7zfJIyXZjakIAZV" && doc.id !== "t1V3x7zfJIyXZjakIAZV2" && doc.id !== "d2wv9hw2m3wHsih4XmOK19" && doc.id !== "d2wv9hw2m3wHsih4XmOK20" && doc.id !== "d2wv9hw2m3wHsih4XmOK21")
           .map((doc) => ({
             id: doc.id,
             ...doc.data(),
