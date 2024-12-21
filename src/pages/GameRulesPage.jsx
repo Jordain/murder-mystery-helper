@@ -39,14 +39,16 @@ const GameRulesPage = () => {
             <div>
               <h3 className="text-lg font-semibold mb-2">Challenging Another Player</h3>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Select one of your BINGO Balls to use for the challenge</li>
-                <li>Approach another player carrying at least one BINGO Ball and announce your challenge</li>
-                <li>Choose either "HIGH" or "LOW" for the challenge</li>
-                <li>The defending player selects one of their BINGO Balls to compete (without inspecting the attacker's ball)</li>
-                <li>Both players reveal their chosen ball numbers after a countdown from 3</li>
-                <li>If the attacker chooses "HIGH" and their ball's number is higher than the defender's, the attacker wins and takes the defender's ball</li>
-                <li>If the defender's ball has a higher number, the defender wins and takes the attacker's ball</li>
-                <li>The same rules apply for "LOW," but the lower number wins</li>
+                <ol>Select one of your BINGO Balls to use for the challenge</ol>
+                <ol>Approach another player carrying at least one BINGO Ball and announce your challenge</ol>
+                <ol>Choose either "HIGH" or "LOW" for the challenge</ol>
+                <ol>The defending player selects one of their BINGO Balls to compete (without inspecting the attacker's ball)</ol>
+                <ol>Both players reveal their chosen ball numbers after a countdown from 3</ol>
+                <ul>
+                  <li>If the attacker chooses "HIGH" and their ball's number is higher than the defender's, the attacker wins and takes the defender's ball</li>
+                  <li>If the defender's ball has a higher number, the defender wins and takes the attacker's ball</li>
+                  <li>The same rules apply for "LOW," but the lower number wins</li>
+                </ul>
               </ul>
             </div>
 
@@ -73,11 +75,13 @@ const GameRulesPage = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Rewards</h3>
+              <p>The first person to turn in their BINGO Balls to Kirby wins a cash prize based on the number submitted. Players must turn in all their balls at once, not incrementally:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>5 balls: $1000</li>
                 <li>6 balls: $1500</li>
                 <li>7 balls: $2000</li>
               </ul>
+              <p>You also win the <b>Bingo Balls Award</b></p>
               <p className="mt-2 text-red-600">Important: Once at least 5 balls are turned in, the reward is no longer available. Players must turn in all their balls at once, not incrementally.</p>
             </div>
           </div>
@@ -85,11 +89,11 @@ const GameRulesPage = () => {
 
         {/* QR Code Game */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">QR Code Hunt</h2>
+          <h2 className="text-2xl font-semibold mb-4">QR Code</h2>
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-semibold mb-2">Important</h3>
-              <p>Scanning these QR codes will unlock Round 2 Main Murder Mystery clues to help you solve the mystery, but they are not required. These clues will make solving the mystery easier.</p>
+              <p>Scanning these QR codes will unlock <b>Round 2 Main Murder Mystery</b> clues to help you solve the mystery, but they are not required. These clues will make solving the mystery easier.</p>
             </div>
 
             <div>
@@ -104,7 +108,7 @@ const GameRulesPage = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Rewards</h3>
-              <p>The player with the highest score at the end of the game wins the Code Cracker Award.</p>
+              <p>The player with the highest score at the end of the game wins the <b>Code Cracker Award.</b></p>
             </div>
           </div>
         </div>
@@ -130,8 +134,9 @@ const GameRulesPage = () => {
                 <li>Check if their name is on your character page:
                   <ul className="list-disc pl-6 mt-2">
                     <li>If it matches, tell them the secret associated with their name</li>
-                    <li>You can stick to the script or improvise, but include the bolded secret word</li>
-                    <li>Tell them who the next two people are that they should talk to for more secrets (one has the correct secret, one just tells a rumor)</li>
+                    <li>You can stick to the script or improvise, but include the <b>bolded secret word</b> in your response</li>
+                    <li>Tell them who the next two people are that they should talk to for more secrets—but not so fast! Consider asking for a bribe or some juicy information before spilling the details.</li>
+                    <li>Only one of the two people they tell you actually have the correct secret, the other just tells you a rumor.</li>
                   </ul>
                 </li>
                 <li>If their name is NOT on your page:
@@ -146,21 +151,26 @@ const GameRulesPage = () => {
               <h3 className="text-lg font-semibold mb-2">Using the Bolded Secret Word</h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Say it out loud within quotes</li>
-                <li>Use air quotes with your hands as you speak it</li>
+                <li>Use <b>air quotes</b> with your hands as you speak it</li>
               </ul>
             </div>
-
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Filling in Secrets & Rumors</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Record your assigned secret word and rumor on the <b>Secrets & Rumors</b> page.</li>
+              </ul>
+            </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">Details</h3>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Each character has 3 exclusive secrets (10 points per secret)</li>
-                <li>There are 24 rumors shared among players (1 point per rumor)</li>
+                <li>Each character has <b>3 exclusive secrets</b> (10 points per secret)</li>
+                <li>There are <b>24 rumors</b> shared among players (1 point per rumor)</li>
               </ul>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Rewards</h3>
-              <p>First person to have the highest score by the end of the game wins the Secret Snooper Award.</p>
+              <p>First person to have the highest score by the end of the game wins the <b>Secret Snooper Award.</b></p>
             </div>
           </div>
         </div>
@@ -174,8 +184,8 @@ const GameRulesPage = () => {
               <ul className="list-disc pl-6 space-y-2">
                 <li>Convert Cash to Poker Chips:
                   <ul className="list-disc pl-6 mt-2">
-                    <li>Use the app to convert your cash into poker chips by placing it in the poker pot while talking to Kirby</li>
-                    <li>Speak to Kirby to exchange your dollars for chips or to convert chips back into dollars</li>
+                    <li>Use the app to convert your cash into poker chips by placing it in the poker pot while talking to <b>Kirby</b></li>
+                    <li>Speak to <b>Kirby</b> to exchange your dollars for chips or to convert chips back into dollars</li>
                   </ul>
                 </li>
                 <li>Play Poker:
@@ -204,7 +214,7 @@ const GameRulesPage = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Rewards</h3>
-              <p>Person who converts the largest amount of chips by the end of the game wins the Read 'Em and Reap Award.</p>
+              <p>Person who converts the largest amount of chips by the end of the game wins the <b>Read 'Em and Reap Award.</b></p>
             </div>
           </div>
         </div>
