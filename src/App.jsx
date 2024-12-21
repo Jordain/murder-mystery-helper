@@ -18,6 +18,7 @@ import CaseFilePage from "./pages/CaseFilePage.jsx";
 import HintPage from "./pages/HintPage.jsx";
 import QRPage from "./pages/QRPage";
 import PokerPage from "./pages/PokerPage";
+import GameRulesPage from "./pages/GameRulesPage.jsx";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import GuestListPage from "./pages/GuestListPage.jsx";
 
@@ -57,7 +58,7 @@ const App = () => {
           <NavBar />
           <div className="container mx-auto px-4 py-8">
             <Routes>
-            <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<HomePage />} />
               <Route
                 path="/guest"
                 element={
@@ -144,6 +145,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <PokerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/rules"
+                element={
+                  <ProtectedRoute>
+                    <GameRulesPage />
                   </ProtectedRoute>
                 }
               />

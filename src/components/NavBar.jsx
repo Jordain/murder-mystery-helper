@@ -59,6 +59,7 @@ const NavBar = () => {
     { to: "/qr", label: "QR" },
     { to: "/transfer", label: "Transfer" },
     { to: "/poker", label: "Poker" },
+    { to: "/rules", label: "Rules" },
     //{ to: "https://www.hemloxx.com/", label: "Hemloxx" },
   ];
 
